@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   NavLink,
   Navigate,
@@ -9,6 +9,7 @@ import {
 
 import { getPeople } from './api';
 import { Loader } from './components/Loader';
+import { PeopleTable } from './components/PeopleTable';
 import { Person } from './types/Person';
 
 import './App.scss';
@@ -43,15 +44,6 @@ const Nav = () => (
       </div>
     </div>
   </nav>
-);
-
-const PersonLink = ({ person }: { person: Person }) => (
-  <a
-    href={`#/people/${person.slug}`}
-    className={person.sex === 'f' ? 'has-text-danger' : ''}
-  >
-    {person.name}
-  </a>
 );
 
 const HomePage = () => (
@@ -95,11 +87,6 @@ const PeoplePage = () => {
   }, []);
 
   const selectedSlug = slug ?? '';
-  const selectedPerson = useMemo(
-    () => people.find(person => person.slug === selectedSlug),
-    [people, selectedSlug],
-  );
-
   const hasPeople = people.length > 0;
 
   return (
@@ -122,70 +109,7 @@ const PeoplePage = () => {
             )}
 
             {!isLoading && !hasError && hasPeople && (
-              <table
-                data-cy="peopleTable"
-                className="table is-striped is-hoverable is-narrow is-fullwidth"
-              >
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Sex</th>
-                    <th>Born</th>
-                    <th>Died</th>
-                    <th>Mother</th>
-                    <th>Father</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {people.map(person => {
-                    const isSelected = selectedPerson?.slug === person.slug;
-                    const motherName = person.motherName;
-                    const fatherName = person.fatherName;
-
-                    const mother =
-                      motherName && people.find(item => item.name === motherName);
-                    const father =
-                      fatherName && people.find(item => item.name === fatherName);
-
-                    return (
-                      <tr
-                        key={person.slug}
-                        data-cy="person"
-                        className={isSelected ? 'has-background-warning' : ''}
-                      >
-                        <td>
-                          <PersonLink person={person} />
-                        </td>
-                        <td>{person.sex}</td>
-                        <td>{person.born}</td>
-                        <td>{person.died}</td>
-                        <td>
-                          {motherName ? (
-                            mother ? (
-                              <PersonLink person={mother} />
-                            ) : (
-                              motherName
-                            )
-                          ) : (
-                            '-'
-                          )}
-                        </td>
-                        <td>
-                          {fatherName ? (
-                            father ? (
-                              <PersonLink person={father} />
-                            ) : (
-                              fatherName
-                            )
-                          ) : (
-                            '-'
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <PeopleTable people={people} selectedSlug={selectedSlug} />
             )}
           </div>
         </div>
